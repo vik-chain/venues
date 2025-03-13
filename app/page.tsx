@@ -1,4 +1,3 @@
-import Image from "next/image";
 import VenueList from "@/components/venue-list";
 
 export default function Home() {
