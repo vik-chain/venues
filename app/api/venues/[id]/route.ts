@@ -1,23 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { getVenue } from '@/lib/api'
+import { NextResponse } from 'next/server'
+import { venues } from '@/lib/venues-data'
 
-type RouteParams = {
-  params: {
-    id: string
+export function GET(_: Request, { params }: { params: { id: string } }) {
+  const venue = venues.find(v => v.id === parseInt(params.id))
+  
+  if (!venue) {
+    return NextResponse.json({ error: 'Venue not found' }, { status: 404 })
   }
-}
-
-export async function GET(
-  request: NextRequest,
-  context: RouteParams
-) {
-  try {
-    const venue = await getVenue(context.params.id)
-    return NextResponse.json(venue)
-  } catch (error) {
-    return NextResponse.json(
-      { error: 'Venue not found' },
-      { status: 404 }
-    )
-  }
+  
+  return NextResponse.json(venue)
 } 

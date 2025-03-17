@@ -2,9 +2,9 @@
 
 import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, MapPin, Users } from "lucide-react"
-import Link from "next/link"
+import { Calendar, MapPin, Users, X } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 
 type Venue = {
   id: number
@@ -24,20 +24,43 @@ type VenueCardProps = {
 
 export default function VenueCard({ venue, isCurrent }: VenueCardProps) {
   const [flipped, setFlipped] = useState(false)
+  const [showButton, setShowButton] = useState(false)
+  const [imageError, setImageError] = useState(false)
 
-  const handleClick = () => {
+  const handleFlip = () => {
     if (isCurrent) {
-      setFlipped(!flipped)
+      setFlipped(true)
+      // Delay showing the button until after the card has flipped
+      setTimeout(() => {
+        setShowButton(true)
+      }, 350) // Half of the flip animation duration
     }
   }
 
+  const handleClose = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setShowButton(false) // Hide button first
+    setTimeout(() => {
+      setFlipped(false)
+    }, 50) // Small delay before flipping back
+  }
+
+  const handleImageError = () => {
+    // Only log in development
+    if (process.env.NODE_ENV === 'development') {
+      // This is a safer way to conditionally log
+      // eslint-disable-next-line no-console
+      console.error(`Failed to load image for ${venue.name}:`, venue.imageUrl)
+    }
+    setImageError(true)
+  }
+
   return (
-    <div
-      className="w-[450px] sm:w-[500px] md:w-[600px] h-[500px] sm:h-[550px] md:h-[650px] cursor-pointer select-none"
-      onClick={handleClick}
-    >
+    <div className="w-[450px] sm:w-[500px] md:w-[600px] h-[500px] sm:h-[550px] md:h-[650px] cursor-pointer select-none relative">
+      {/* Main card with 3D flip */}
       <div
-        className={`relative w-full h-full transition-transform duration-700 transform-style-3d ${
+        onClick={flipped ? undefined : handleFlip}
+        className={`relative w-full h-full transition-transform duration-700 ease-in-out transform-style-3d ${
           flipped ? "rotate-y-180" : ""
         }`}
       >
@@ -47,18 +70,37 @@ export default function VenueCard({ venue, isCurrent }: VenueCardProps) {
             isCurrent ? "ring-2 ring-[#989FCE]/50" : ""
           } flex flex-col items-center justify-center select-none`}
         >
-          {/* Background image with lighter overlay */}
+          {/* Background image with darker overlay */}
           <div className="absolute inset-0 z-0">
-            <Image
-              src={venue.imageUrl}
-              alt={venue.name}
-              fill
-              className="object-cover select-none"
-              sizes="(max-width: 768px) 100vw, 600px"
-              priority={isCurrent}
-              quality={95}
-              draggable="false"
-            />
+            {imageError ? (
+              // Fallback for image error
+              <div 
+                className="w-full h-full bg-[#52414C]"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#FFE9CE',
+                  fontSize: '1.5rem',
+                  textAlign: 'center',
+                  padding: '2rem'
+                }}
+              >
+                {venue.name}
+              </div>
+            ) : (
+              <Image
+                src={venue.imageUrl}
+                alt={venue.name}
+                fill
+                className="object-cover select-none"
+                sizes="(max-width: 768px) 100vw, 600px"
+                priority={isCurrent}
+                quality={95}
+                draggable="false"
+                onError={handleImageError}
+              />
+            )}
             {/* Darker gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-[#52414C]/90 via-[#52414C]/40 to-[#52414C]/20"></div>
           </div>
@@ -79,6 +121,15 @@ export default function VenueCard({ venue, isCurrent }: VenueCardProps) {
 
         {/* Back of card */}
         <div className="absolute w-full h-full backface-hidden bg-gradient-to-b from-[#FFE9CE] to-[#FFE9CE]/90 rounded-2xl shadow-2xl rotate-y-180 overflow-hidden backdrop-blur-sm select-none">
+          {/* Close button */}
+          <button 
+            onClick={handleClose}
+            className="absolute top-4 right-4 z-20 bg-[#52414C]/30 hover:bg-[#52414C]/50 text-[#52414C] rounded-full p-1.5 transition-colors"
+            aria-label="Close details"
+          >
+            <X className="h-5 w-5" />
+          </button>
+          
           <div className="p-8 h-full overflow-y-auto pb-24">
             <h2 className="text-3xl font-bold text-[#52414C] mb-4">{venue.name}</h2>
             <p className="text-[#52414C]/80 mb-6 text-base">{venue.description}</p>
@@ -119,22 +170,25 @@ export default function VenueCard({ venue, isCurrent }: VenueCardProps) {
               </ul>
             </div>
           </div>
-          
-          {/* Fixed position link at the bottom */}
-          <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-[#FFE9CE] to-[#FFE9CE]/80 backdrop-blur-sm">
-            <Link 
-              href={`/venues/${venue.id}`}
-              className="block w-full py-4 bg-gradient-to-r from-[#52414C] to-[#989FCE] text-[#FFE9CE] text-base font-medium rounded-lg hover:from-[#989FCE] hover:to-[#52414C] transition-colors text-center shadow-md"
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                window.location.href = `/venues/${venue.id}`;
-              }}
-            >
-              View Full Details
-            </Link>
-          </div>
         </div>
+      </div>
+
+      {/* Completely separate link outside the 3D transform with transition */}
+      <div 
+        className={`absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-[#FFE9CE] to-[#FFE9CE]/80 backdrop-blur-sm z-50 pointer-events-auto transition-opacity duration-300 ease-in-out ${
+          showButton ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Link 
+          href={`/venues/${venue.id}`}
+          passHref
+          legacyBehavior
+        >
+          <a className="block w-full py-4 bg-gradient-to-r from-[#52414C] to-[#989FCE] text-[#FFE9CE] text-base font-medium rounded-lg hover:from-[#989FCE] hover:to-[#52414C] transition-colors shadow-md flex items-center justify-center cursor-pointer">
+            View Full Details
+          </a>
+        </Link>
       </div>
     </div>
   )
