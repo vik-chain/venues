@@ -1,65 +1,119 @@
-import { venues } from "@/lib/venues-data"
-import Link from "next/link"
-import Image from "next/image"
-import { ArrowLeft } from "lucide-react"
+"use client"
 
-export const metadata = {
-  title: 'Search Venues - NYC Venues',
-  description: 'Find the perfect venue for your next event in NYC',
-}
+import { useState, useEffect } from "react"
+import { Search } from "lucide-react"
+import Link from "next/link"
+import { getVenues } from "@/lib/api"
+import VenueCard from "@/components/venue-card"
+import { useSearchParams, useRouter } from "next/navigation"
 
 export default function SearchPage() {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const initialQuery = searchParams.get("q") || ""
+  
+  const [searchQuery, setSearchQuery] = useState(initialQuery)
+  const [venues, setVenues] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+
+  // Load venues based on the URL query parameter on initial load
+  useEffect(() => {
+    if (initialQuery) {
+      performSearch(initialQuery)
+    }
+  }, [initialQuery])
+
+  const performSearch = async (query) => {
+    setIsLoading(true)
+    try {
+      const results = await getVenues(query)
+      setVenues(results)
+      setSubmitted(true)
+    } catch (error) {
+      console.error("Error searching venues:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    
+    // Update the URL with the search query
+    const params = new URLSearchParams()
+    if (searchQuery) {
+      params.set("q", searchQuery)
+    }
+    
+    // Update the URL without refreshing the page
+    router.push(`/search?${params.toString()}`)
+    
+    // Perform the search
+    performSearch(searchQuery)
+  }
+
   return (
-    <main className="min-h-screen bg-gradient-to-b from-[#52414C] to-black text-[#FFE9CE] p-8">
-      <div className="max-w-6xl mx-auto">
-        <Link 
-          href="/" 
-          className="inline-flex items-center text-[#989FCE] hover:text-[#FFE9CE] mb-8 transition-colors font-light"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Home
-        </Link>
+    <main className="min-h-screen bg-gradient-to-b from-[#52414C] via-[#3A2E36] to-black text-[#FFE9CE]">
+      <div className="container mx-auto px-4 py-8">
+        <header className="mb-8">
+          <Link href="/" className="text-4xl md:text-5xl font-light tracking-tight mb-6 block text-[#FFE9CE] hover:text-[#FFE9CE]/80 transition-colors">
+            <span className="font-bold">NYC</span> Venues
+          </Link>
+          
+          <form onSubmit={handleSubmit} className="mt-6">
+            <div className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search venues by name, description, or vibe..."
+                className="w-full bg-[#52414C]/30 border border-[#989FCE]/30 rounded-full px-6 py-4 pl-12 text-[#FFE9CE] placeholder-[#FFE9CE]/50 focus:outline-none focus:ring-2 focus:ring-[#989FCE]/50"
+              />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#989FCE]" />
+              <button 
+                type="submit"
+                className="absolute right-3 top-1/2 -translate-y-1/2 bg-[#989FCE]/20 hover:bg-[#989FCE]/30 text-[#FFE9CE] px-4 py-2 rounded-full transition-colors"
+              >
+                Search
+              </button>
+            </div>
+          </form>
+        </header>
         
-        <h1 className="text-4xl font-light tracking-tight mb-2 text-[#FFE9CE]">
-          <span className="font-bold">Search</span> Venues
-        </h1>
-        <p className="text-[#FFE9CE]/70 mb-8 font-light tracking-wide">Find the perfect venue for your next event in NYC</p>
-        
-        <div className="relative mb-12">
-          <input 
-            type="text" 
-            placeholder="Search by name, capacity, or vibe..." 
-            className="w-full bg-[#52414C]/20 border border-[#989FCE]/30 rounded-lg px-4 py-3 text-[#FFE9CE] placeholder-[#FFE9CE]/50 focus:outline-none focus:ring-2 focus:ring-[#989FCE]/50 font-light tracking-wide"
-          />
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {venues.map((venue) => (
-            <Link 
-              key={venue.id} 
-              href={`/venues/${venue.id}`}
-              className="bg-[#52414C]/20 hover:bg-[#52414C]/30 border border-[#989FCE]/20 rounded-xl overflow-hidden transition-all hover:shadow-lg hover:shadow-[#989FCE]/10 group"
-            >
-              <div className="relative h-48">
-                <Image 
-                  src={venue.imageUrl} 
-                  alt={venue.name}
-                  fill
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#52414C]/80 via-[#52414C]/20 to-transparent"></div>
-              </div>
-              <div className="p-6">
-                <h2 className="text-xl font-medium mb-2 group-hover:text-[#989FCE] transition-colors">{venue.name}</h2>
-                <p className="text-[#FFE9CE]/70 text-sm mb-4 line-clamp-2 font-light">{venue.description}</p>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-[#FFE9CE]/60 font-light">Capacity: {venue.capacity}</span>
-                  <span className="text-[#989FCE] font-light">{venue.vibe.split(', ')[0]}</span>
+        <section>
+          {isLoading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#989FCE]"></div>
+            </div>
+          ) : submitted ? (
+            venues.length > 0 ? (
+              <div>
+                <h2 className="text-2xl font-light mb-6">
+                  Found {venues.length} {venues.length === 1 ? 'venue' : 'venues'}
+                  {searchQuery && ` for "${searchQuery}"`}
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {venues.map((venue) => (
+                    <div key={venue.id} className="flex justify-center">
+                      <VenueCard venue={venue} isCurrent={true} />
+                    </div>
+                  ))}
                 </div>
               </div>
-            </Link>
-          ))}
-        </div>
+            ) : (
+              <div className="text-center py-16">
+                <h2 className="text-2xl font-light mb-4">No venues found{searchQuery && ` for "${searchQuery}"`}</h2>
+                <p className="text-[#FFE9CE]/70">Try a different search term or browse all venues.</p>
+              </div>
+            )
+          ) : (
+            <div className="text-center py-16">
+              <h2 className="text-2xl font-light mb-4">Search for your perfect venue</h2>
+              <p className="text-[#FFE9CE]/70">Enter keywords like "intimate", "Brooklyn", or "jazz" to find venues.</p>
+            </div>
+          )}
+        </section>
       </div>
     </main>
   )
