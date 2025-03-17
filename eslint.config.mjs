@@ -12,8 +12,7 @@ const compat = new FlatCompat({
 
 export default [
   ...compat.config({
-    extends: ['next/core-web-vitals', 'prettier'],
-    plugins: ['prettier'],
+    extends: ['next/core-web-vitals'],
     rules: {
       // Disable rules for unused variables and imports
       'no-unused-vars': 'off',
@@ -24,7 +23,7 @@ export default [
       'react/prop-types': 'off',
       'react/react-in-jsx-scope': 'off',
       'react/display-name': 'off',
-      'react-hooks/exhaustive-deps': 'warn', // Downgrade from error to warning
+      'react-hooks/exhaustive-deps': 'warn',
       
       // Disable strict type checking rules
       '@typescript-eslint/no-explicit-any': 'off',
@@ -35,17 +34,13 @@ export default [
       'no-empty-function': 'off',
       'no-empty': 'off',
       
-      // Allow console logs (useful for debugging)
+      // Allow console logs
       'no-console': 'off',
-      
-      // Prettier integration
-      'prettier/prettier': ['warn', {}, { usePrettierrc: true }]
     },
   }),
   {
     files: ['**/*.ts', '**/*.tsx'],
     rules: {
-      // TypeScript-specific rules to disable
       '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/ban-ts-comment': 'off',
       '@typescript-eslint/no-empty-function': 'off',
@@ -54,7 +49,6 @@ export default [
   {
     files: ['app/**/*.ts', 'app/**/*.tsx', 'components/**/*.ts', 'components/**/*.tsx'],
     rules: {
-      // Next.js specific rules
       'import/no-anonymous-default-export': 'off',
       '@next/next/no-img-element': 'off',
       '@next/next/no-html-link-for-pages': 'off',

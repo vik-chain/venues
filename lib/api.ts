@@ -1,30 +1,29 @@
-import { Venue } from './venues-data'
+import { venues } from './venues-data'
 
-export async function getVenues(searchQuery?: string): Promise<Venue[]> {
-  // Build the URL with search params if provided
-  const url = searchQuery 
-    ? `http://localhost:3000/api/venues?q=${encodeURIComponent(searchQuery)}`
-    : 'http://localhost:3000/api/venues'
+export async function getVenues(query?: string) {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 500))
   
-  const res = await fetch(url, {
-    next: { revalidate: 3600 } // Revalidate every hour
-  })
+  if (!query) return venues
   
-  if (!res.ok) {
-    throw new Error('Failed to fetch venues')
-  }
-  
-  return res.json()
+  const lowercaseQuery = query.toLowerCase()
+  return venues.filter(venue => 
+    venue.name.toLowerCase().includes(lowercaseQuery) ||
+    venue.description.toLowerCase().includes(lowercaseQuery) ||
+    venue.vibe.toLowerCase().includes(lowercaseQuery) ||
+    venue.capacity.toLowerCase().includes(lowercaseQuery)
+  )
 }
 
-export async function getVenue(id: string): Promise<Venue> {
-  const res = await fetch(`http://localhost:3000/api/venues/${id}`, {
-    next: { revalidate: 3600 }
-  })
+export async function getVenue(id: string) {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 300))
   
-  if (!res.ok) {
-    throw new Error('Failed to fetch venue')
+  const venue = venues.find(v => v.id === parseInt(id))
+  
+  if (!venue) {
+    throw new Error(`Venue with ID ${id} not found`)
   }
   
-  return res.json()
+  return venue
 } 

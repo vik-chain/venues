@@ -1,15 +1,17 @@
-import { NextResponse } from 'next/server'
-import { venues } from '@/lib/venues-data'
+import { NextRequest, NextResponse } from 'next/server'
+import { getVenue } from '@/lib/api'
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const venue = venues.find(v => v.id === parseInt(params.id))
-  
-  if (!venue) {
-    return new NextResponse('Not Found', { status: 404 })
+  try {
+    const venue = await getVenue(params.id)
+    return NextResponse.json(venue)
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Venue not found' },
+      { status: 404 }
+    )
   }
-  
-  return NextResponse.json(venue)
 } 
