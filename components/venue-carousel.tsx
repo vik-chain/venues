@@ -84,7 +84,7 @@ export default function VenueCarousel() {
       carousel.removeEventListener('touchstart', touchStartHandler)
       carousel.removeEventListener('touchend', touchEndHandler)
     }
-  }, [startX, isAnimating])
+  }, [handleDragStart, handleDragEnd])
 
   return (
     <div 

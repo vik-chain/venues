@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 "use client"
 
 import { useState, useEffect } from "react"
@@ -6,6 +7,7 @@ import Link from "next/link"
 import { getVenues } from "@/lib/api"
 import VenueCard from "@/components/venue-card"
 import { useSearchParams, useRouter } from "next/navigation"
+import type { Venue } from "@/lib/api.ts"
 
 export default function SearchPage() {
   const searchParams = useSearchParams()
@@ -13,7 +15,7 @@ export default function SearchPage() {
   const initialQuery = searchParams.get("q") || ""
   
   const [searchQuery, setSearchQuery] = useState(initialQuery)
-  const [venues, setVenues] = useState([])
+  const [venues, setVenues] = useState<Venue[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
@@ -24,7 +26,7 @@ export default function SearchPage() {
     }
   }, [initialQuery])
 
-  const performSearch = async (query) => {
+  const performSearch = async (query: string) => {
     setIsLoading(true)
     try {
       const results = await getVenues(query)
@@ -37,7 +39,7 @@ export default function SearchPage() {
     }
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     
     // Update the URL with the search query
@@ -91,7 +93,7 @@ export default function SearchPage() {
               <div>
                 <h2 className="text-2xl font-light mb-6">
                   Found {venues.length} {venues.length === 1 ? 'venue' : 'venues'}
-                  {searchQuery && ` for "${searchQuery}"`}
+                  {searchQuery && ` for '${searchQuery}'`}
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {venues.map((venue) => (
@@ -103,14 +105,14 @@ export default function SearchPage() {
               </div>
             ) : (
               <div className="text-center py-16">
-                <h2 className="text-2xl font-light mb-4">No venues found{searchQuery && ` for "${searchQuery}"`}</h2>
+                <h2 className="text-2xl font-light mb-4">No venues found{searchQuery && ` for '${searchQuery}'`}</h2>
                 <p className="text-[#FFE9CE]/70">Try a different search term or browse all venues.</p>
               </div>
             )
           ) : (
             <div className="text-center py-16">
               <h2 className="text-2xl font-light mb-4">Search for your perfect venue</h2>
-              <p className="text-[#FFE9CE]/70">Enter keywords like "intimate", "Brooklyn", or "jazz" to find venues.</p>
+              <p className="text-[#FFE9CE]/70">Enter keywords like &quot;intimate&quot;, &quot;Brooklyn&quot;, or &quot;jazz&quot; to find venues.</p>
             </div>
           )}
         </section>

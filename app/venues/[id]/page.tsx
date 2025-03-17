@@ -50,7 +50,7 @@ export default async function VenuePage({ params }: { params: { id: string } }) 
               <h1 className="text-3xl md:text-4xl font-light tracking-tight text-[#FFE9CE] drop-shadow-lg">
                 {venue.name}
               </h1>
-              <FavoriteButton venueId={venue.id} />
+              <FavoriteButton venueId={venue.id} venueName={venue.name} />
             </div>
           </div>
           

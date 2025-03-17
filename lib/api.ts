@@ -1,5 +1,16 @@
 import { venues } from './venues-data'
 
+export type Venue = {
+  id: number
+  name: string
+  description: string
+  capacity: string
+  address: string
+  upcomingShows: Array<{ name: string; date: string }>
+  vibe: string
+  imageUrl: string
+}
+
 export async function getVenues(query?: string) {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 500))
