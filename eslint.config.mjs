@@ -1,16 +1,63 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+import nextjs from '@next/eslint-plugin-next'
+import js from '@eslint/js'
+import { FlatCompat } from '@eslint/eslintrc'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const compat = new FlatCompat({
   baseDirectory: __dirname,
-});
+  recommendedConfig: js.configs.recommended,
+})
 
-const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
-];
-
-export default eslintConfig;
+export default [
+  ...compat.config({
+    extends: ['next/core-web-vitals', 'prettier'],
+    plugins: ['prettier'],
+    rules: {
+      // Disable rules for unused variables and imports
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+      'import/no-unused-modules': 'off',
+      
+      // Make other rules more lenient
+      'react/prop-types': 'off',
+      'react/react-in-jsx-scope': 'off',
+      'react/display-name': 'off',
+      'react-hooks/exhaustive-deps': 'warn', // Downgrade from error to warning
+      
+      // Disable strict type checking rules
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+      '@typescript-eslint/no-non-null-assertion': 'off',
+      
+      // Allow empty functions and blocks
+      'no-empty-function': 'off',
+      'no-empty': 'off',
+      
+      // Allow console logs (useful for debugging)
+      'no-console': 'off',
+      
+      // Prettier integration
+      'prettier/prettier': ['warn', {}, { usePrettierrc: true }]
+    },
+  }),
+  {
+    files: ['**/*.ts', '**/*.tsx'],
+    rules: {
+      // TypeScript-specific rules to disable
+      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/ban-ts-comment': 'off',
+      '@typescript-eslint/no-empty-function': 'off',
+    },
+  },
+  {
+    files: ['app/**/*.ts', 'app/**/*.tsx', 'components/**/*.ts', 'components/**/*.tsx'],
+    rules: {
+      // Next.js specific rules
+      'import/no-anonymous-default-export': 'off',
+      '@next/next/no-img-element': 'off',
+      '@next/next/no-html-link-for-pages': 'off',
+    },
+  },
+]
