@@ -1,176 +1,142 @@
 "use client"
 
-import type React from "react"
-
 import { useState, useRef, useEffect } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import VenueCard from "./venue-card"
-
-// Sample venue data
-const venues = [
-  {
-    id: 1,
-    name: "Madison Square Garden",
-    description: "The world's most famous arena",
-    capacity: "20,789",
-    address: "4 Pennsylvania Plaza, New York, NY 10001",
-    upcomingShows: [
-      { name: "Billy Joel", date: "June 15, 2025" },
-      { name: "The Weeknd", date: "July 3, 2025" },
-      { name: "Coldplay", date: "July 20, 2025" },
-    ],
-    vibe: "Iconic, Energetic, Massive",
-  },
-  {
-    id: 2,
-    name: "Radio City Music Hall",
-    description: "Home of the Rockettes",
-    capacity: "6,015",
-    address: "1260 6th Ave, New York, NY 10020",
-    upcomingShows: [
-      { name: "Dave Chappelle", date: "May 25, 2025" },
-      { name: "John Legend", date: "June 10, 2025" },
-      { name: "Alicia Keys", date: "June 22, 2025" },
-    ],
-    vibe: "Historic, Elegant, Theatrical",
-  },
-  {
-    id: 3,
-    name: "Brooklyn Steel",
-    description: "Industrial-chic concert venue",
-    capacity: "1,800",
-    address: "319 Frost St, Brooklyn, NY 11222",
-    upcomingShows: [
-      { name: "Tame Impala", date: "May 30, 2025" },
-      { name: "Glass Animals", date: "June 5, 2025" },
-      { name: "Khruangbin", date: "June 18, 2025" },
-    ],
-    vibe: "Industrial, Intimate, Hip",
-  },
-  {
-    id: 4,
-    name: "Bowery Ballroom",
-    description: "Intimate downtown music venue",
-    capacity: "575",
-    address: "6 Delancey St, New York, NY 10002",
-    upcomingShows: [
-      { name: "Japanese Breakfast", date: "May 22, 2025" },
-      { name: "Mitski", date: "June 8, 2025" },
-      { name: "Car Seat Headrest", date: "June 25, 2025" },
-    ],
-    vibe: "Intimate, Historic, Underground",
-  },
-  {
-    id: 5,
-    name: "Apollo Theater",
-    description: "Legendary Harlem landmark",
-    capacity: "1,506",
-    address: "253 W 125th St, New York, NY 10027",
-    upcomingShows: [
-      { name: "Amateur Night", date: "Every Wednesday" },
-      { name: "D'Angelo", date: "June 12, 2025" },
-      { name: "Lauryn Hill", date: "July 8, 2025" },
-    ],
-    vibe: "Historic, Soulful, Cultural",
-  },
-]
+import { venues } from "@/lib/venues-data"
 
 export default function VenueCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [isAnimating, setIsAnimating] = useState(false)
   const [startX, setStartX] = useState(0)
-  const [isDragging, setIsDragging] = useState(false)
-  const [dragThreshold] = useState(50) // Minimum drag distance to trigger navigation
-  const containerRef = useRef<HTMLDivElement>(null)
+  const carouselRef = useRef<HTMLDivElement>(null)
 
-  const handlePrev = () => {
-    setCurrentIndex((prev) => (prev === 0 ? venues.length - 1 : prev - 1))
+  const goToNext = () => {
+    if (isAnimating) return
+    
+    setIsAnimating(true)
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % venues.length)
+    setTimeout(() => setIsAnimating(false), 500)
   }
 
-  const handleNext = () => {
-    setCurrentIndex((prev) => (prev === venues.length - 1 ? 0 : prev + 1))
+  const goToPrevious = () => {
+    if (isAnimating) return
+    
+    setIsAnimating(true)
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + venues.length) % venues.length)
+    setTimeout(() => setIsAnimating(false), 500)
   }
 
-  // Mouse events for desktop
-  const handleMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true)
-    setStartX(e.clientX)
-  }
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return
-
-    const currentX = e.clientX
-    const diff = startX - currentX
-
-    if (Math.abs(diff) > dragThreshold) {
-      if (diff > 0) {
-        handleNext()
-      } else {
-        handlePrev()
-      }
-      setIsDragging(false)
+  // Handle drag events
+  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
+    if (isAnimating) return
+    
+    // Get the starting position
+    if ('touches' in e) {
+      setStartX(e.touches[0].clientX)
+    } else {
+      setStartX(e.clientX)
     }
   }
 
-  const handleMouseUp = () => {
-    setIsDragging(false)
-  }
-
-  // Touch events for mobile
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setIsDragging(true)
-    setStartX(e.touches[0].clientX)
-  }
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging) return
-
-    const currentX = e.touches[0].clientX
-    const diff = startX - currentX
-
-    if (Math.abs(diff) > dragThreshold) {
-      if (diff > 0) {
-        handleNext()
-      } else {
-        handlePrev()
-      }
-      setIsDragging(false)
+  const handleDragEnd = (e: React.MouseEvent | React.TouchEvent) => {
+    if (isAnimating || startX === 0) return
+    
+    let endX: number
+    
+    if ('changedTouches' in e) {
+      endX = e.changedTouches[0].clientX
+    } else {
+      endX = e.clientX
     }
+    
+    const diffX = endX - startX
+    
+    // If the drag was significant enough
+    if (Math.abs(diffX) > 50) {
+      if (diffX > 0) {
+        goToPrevious()
+      } else {
+        goToNext()
+      }
+    }
+    
+    setStartX(0)
   }
 
-  const handleTouchEnd = () => {
-    setIsDragging(false)
-  }
-
-  // Add and remove event listeners
+  // Add event listeners for touch events
   useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
-
-    // Add global event listeners to catch events outside the container
-    window.addEventListener("mouseup", handleMouseUp)
-    window.addEventListener("touchend", handleTouchEnd)
-
-    return () => {
-      window.removeEventListener("mouseup", handleMouseUp)
-      window.removeEventListener("touchend", handleTouchEnd)
+    const carousel = carouselRef.current
+    if (!carousel) return
+    
+    const touchStartHandler = (e: TouchEvent) => {
+      handleDragStart(e as unknown as React.TouchEvent)
     }
-  }, [])
+    
+    const touchEndHandler = (e: TouchEvent) => {
+      handleDragEnd(e as unknown as React.TouchEvent)
+    }
+    
+    carousel.addEventListener('touchstart', touchStartHandler)
+    carousel.addEventListener('touchend', touchEndHandler)
+    
+    return () => {
+      carousel.removeEventListener('touchstart', touchStartHandler)
+      carousel.removeEventListener('touchend', touchEndHandler)
+    }
+  }, [startX, isAnimating])
 
   return (
-    <div
-      ref={containerRef}
-      className="relative w-full h-full flex items-center justify-center select-none"
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      style={{ cursor: isDragging ? "grabbing" : "grab" }}
+    <div 
+      className="relative w-full h-full select-none"
+      ref={carouselRef}
+      onMouseDown={handleDragStart}
+      onMouseUp={handleDragEnd}
+      onMouseLeave={handleDragEnd}
     >
-      <div className="relative w-full max-w-4xl h-full flex items-center justify-center perspective-1000">
+      {/* Darker background gradient for blending */}
+      <div className="absolute inset-0 bg-gradient-radial from-[#52414C]/30 to-black z-0"></div>
+      
+      {/* Navigation buttons */}
+      <button
+        onClick={goToPrevious}
+        className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-[#52414C]/60 hover:bg-[#52414C]/80 text-[#FFE9CE] p-4 rounded-full backdrop-blur-sm transition-all"
+        aria-label="Previous venue"
+      >
+        <ChevronLeft className="h-7 w-7" />
+      </button>
+      
+      <button
+        onClick={goToNext}
+        className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-[#52414C]/60 hover:bg-[#52414C]/80 text-[#FFE9CE] p-4 rounded-full backdrop-blur-sm transition-all"
+        aria-label="Next venue"
+      >
+        <ChevronRight className="h-7 w-7" />
+      </button>
+      
+      {/* Carousel indicators */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex space-x-3">
+        {venues.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => {
+              if (isAnimating) return
+              setIsAnimating(true)
+              setCurrentIndex(index)
+              setTimeout(() => setIsAnimating(false), 500)
+            }}
+            className={`h-3 rounded-full transition-all ${
+              index === currentIndex 
+                ? "bg-[#989FCE] w-8" 
+                : "bg-[#FFE9CE]/40 w-3 hover:bg-[#FFE9CE]/60"
+            }`}
+            aria-label={`Go to slide ${index + 1}`}
+          />
+        ))}
+      </div>
+
+      {/* Cards container with perspective */}
+      <div className="relative w-full max-w-7xl mx-auto h-full flex items-center justify-center perspective-1000 select-none">
         {venues.map((venue, index) => {
           // Only render the current card and the ones immediately before and after
           const isVisible =
@@ -185,25 +151,28 @@ export default function VenueCarousel() {
           let zIndex = 10
           let opacity = 1
           let scale = 1
+          let blur = ""
 
           if (index !== currentIndex) {
             if (index === currentIndex + 1 || (currentIndex === venues.length - 1 && index === 0)) {
               position = "left-[85%] -translate-x-1/2"
               zIndex = 5
-              opacity = 0.7
-              scale = 0.85
+              opacity = 0.5
+              scale = 0.8
+              blur = "blur-[2px]"
             } else {
               position = "left-[15%] -translate-x-1/2"
               zIndex = 5
-              opacity = 0.7
-              scale = 0.85
+              opacity = 0.5
+              scale = 0.8
+              blur = "blur-[2px]"
             }
           }
 
           return (
             <div
               key={venue.id}
-              className={`absolute ${position} transition-all duration-500 ease-in-out`}
+              className={`absolute ${position} transition-all duration-500 ease-in-out ${blur} select-none`}
               style={{
                 zIndex,
                 opacity,
@@ -214,35 +183,6 @@ export default function VenueCarousel() {
             </div>
           )
         })}
-      </div>
-
-      <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4 z-20">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={handlePrev}
-          className="bg-black/50 backdrop-blur-sm text-white border-white/20 hover:bg-white/20"
-        >
-          <ChevronLeft className="h-6 w-6" />
-        </Button>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={handleNext}
-          className="bg-black/50 backdrop-blur-sm text-white border-white/20 hover:bg-white/20"
-        >
-          <ChevronRight className="h-6 w-6" />
-        </Button>
-      </div>
-
-      <div className="absolute bottom-16 left-0 right-0 flex justify-center gap-2 z-20">
-        {venues.map((_, index) => (
-          <button
-            key={index}
-            className={`w-2 h-2 rounded-full ${index === currentIndex ? "bg-white" : "bg-white/30"}`}
-            onClick={() => setCurrentIndex(index)}
-          />
-        ))}
       </div>
     </div>
   )
