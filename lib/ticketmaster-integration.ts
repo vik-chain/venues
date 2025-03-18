@@ -45,6 +45,11 @@ function formatPriceRange(priceRanges?: any[]): string | undefined {
 // Enhance a single venue with Ticketmaster data
 export async function enhanceVenueWithTicketmaster(venue: Venue): Promise<Venue> {
   try {
+    // Skip if we already know Ticketmaster isn't available for this venue
+    if (venue.ticketmasterAvailable === false) {
+      return venue;
+    }
+    
     // Skip if we already have a Ticketmaster ID
     if (venue.ticketmasterId) {
       return venue;
@@ -55,7 +60,11 @@ export async function enhanceVenueWithTicketmaster(venue: Venue): Promise<Venue>
     
     if (tmVenues.length === 0) {
       console.log(`No Ticketmaster venue found for: ${venue.name}`);
-      return venue;
+      // Mark this venue as not available on Ticketmaster to avoid future lookups
+      return {
+        ...venue,
+        ticketmasterAvailable: false
+      };
     }
     
     // Get the first matching venue
@@ -69,6 +78,7 @@ export async function enhanceVenueWithTicketmaster(venue: Venue): Promise<Venue>
       ...venue,
       ticketmasterId: tmVenue.id,
       ticketmasterUrl: tmVenue.url,
+      ticketmasterAvailable: true,
       // Update upcomingShows with real data if available
       upcomingShows: events.length > 0 
         ? events.slice(0, 5).map((event: any) => ({
@@ -83,7 +93,11 @@ export async function enhanceVenueWithTicketmaster(venue: Venue): Promise<Venue>
     return enhancedVenue;
   } catch (error) {
     console.error(`Error enhancing venue ${venue.name}:`, error);
-    return venue;
+    // Mark as not available on Ticketmaster due to error
+    return {
+      ...venue,
+      ticketmasterAvailable: false
+    };
   }
 }
 

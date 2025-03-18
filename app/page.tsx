@@ -3,9 +3,18 @@ import { Search } from "lucide-react"
 import Link from "next/link"
 import { getVenues } from '@/lib/api'
 
+// Helper function to get 5 random venues
+function getRandomVenues(venues: any[], count: number = 5) {
+  const shuffled = [...venues].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
+}
+
 export default async function Home() {
-  // This will now get the enhanced venues with Ticketmaster data
-  const venues = await getVenues()
+  // Get all venues with Ticketmaster data
+  const allVenues = await getVenues();
+  
+  // Select 5 random venues for the carousel
+  const carouselVenues = getRandomVenues(allVenues, 5);
   
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#52414C] via-[#3A2E36] to-black text-[#FFE9CE] overflow-hidden">
@@ -27,7 +36,7 @@ export default async function Home() {
         </header>
         
         <section className="h-[650px] md:h-[750px] lg:h-[800px] mb-12">
-          <VenueCarousel venues={venues} />
+          <VenueCarousel venues={carouselVenues} />
         </section>
         
         <footer className="text-center text-[#FFE9CE]/60 py-8 font-light tracking-wide">

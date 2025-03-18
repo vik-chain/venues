@@ -1,21 +1,31 @@
-export type Venue = {
+export type VenueData = {
   id: number
   name: string
   description: string
   capacity: string
   address: string
+  neighborhood: string  // Add neighborhood for better filtering
   upcomingShows: Array<{ name: string; date: string }>
   vibe: string
   imageUrl: string
+  coordinates?: {  // Optional coordinates for better mapping
+    lat: number
+    lng: number
+  }
+  website?: string  // Venue's official website
+  phone?: string    // Contact information
+  yearEstablished?: number  // Historical context
+  notableActs?: string[]  // Famous performers who've played here
 }
 
-export const venues: Venue[] = [
+export const venues: VenueData[] = [
   {
     id: 1,
     name: "Madison Square Garden",
     description: "The world's most famous arena",
     capacity: "20,789",
     address: "4 Pennsylvania Plaza, New York, NY 10001",
+    neighborhood: "Midtown Manhattan",
     upcomingShows: [
       { name: "Billy Joel", date: "June 15, 2025" },
       { name: "The Weeknd", date: "July 3, 2025" },
@@ -23,6 +33,11 @@ export const venues: Venue[] = [
     ],
     vibe: "Iconic, Energetic, Massive",
     imageUrl: "/images/msg.jpg",
+    coordinates: { lat: 40.7505, lng: -73.9934 },
+    website: "https://www.madisonsquaregarden.com",
+    phone: "+1 212-465-6741",
+    yearEstablished: 1879,
+    notableActs: ["Billy Joel", "The Weeknd", "Coldplay"],
   },
   // ... rest of the venues data
   {
@@ -31,6 +46,7 @@ export const venues: Venue[] = [
     description: "Home of the Rockettes",
     capacity: "6,015",
     address: "1260 6th Ave, New York, NY 10020",
+    neighborhood: "Midtown Manhattan",
     upcomingShows: [
       { name: "Dave Chappelle", date: "May 25, 2025" },
       { name: "John Legend", date: "June 10, 2025" },
@@ -38,6 +54,11 @@ export const venues: Venue[] = [
     ],
     vibe: "Historic, Elegant, Theatrical",
     imageUrl: "/images/radiocity.jpg",
+    coordinates: { lat: 40.7626, lng: -73.9772 },
+    website: "https://www.radio.city",
+    phone: "+1 212-247-7800",
+    yearEstablished: 1932,
+    notableActs: ["Dave Chappelle", "John Legend", "Alicia Keys"],
   },
   {
     id: 3,
@@ -45,6 +66,7 @@ export const venues: Venue[] = [
     description: "Industrial-chic concert venue",
     capacity: "1,800",
     address: "319 Frost St, Brooklyn, NY 11222",
+    neighborhood: "Williamsburg",
     upcomingShows: [
       { name: "Tame Impala", date: "May 30, 2025" },
       { name: "Glass Animals", date: "June 5, 2025" },
@@ -52,6 +74,11 @@ export const venues: Venue[] = [
     ],
     vibe: "Industrial, Intimate, Hip",
     imageUrl: "/images/brooklynsteel.jpg",
+    coordinates: { lat: 40.7144, lng: -73.9612 },
+    website: "https://www.brooklynsteel.com",
+    phone: "+1 718-488-2000",
+    yearEstablished: 2016,
+    notableActs: ["Tame Impala", "Glass Animals", "Khruangbin"],
   },
   {
     id: 4,
@@ -59,6 +86,7 @@ export const venues: Venue[] = [
     description: "Intimate downtown music venue",
     capacity: "575",
     address: "6 Delancey St, New York, NY 10002",
+    neighborhood: "Lower East Side",
     upcomingShows: [
       { name: "Japanese Breakfast", date: "May 22, 2025" },
       { name: "Mitski", date: "June 8, 2025" },
@@ -66,6 +94,11 @@ export const venues: Venue[] = [
     ],
     vibe: "Intimate, Historic, Underground",
     imageUrl: "/images/boweryballroom.jpg",
+    coordinates: { lat: 40.7194, lng: -73.9892 },
+    website: "https://www.boweryballroom.com",
+    phone: "+1 212-477-4155",
+    yearEstablished: 1999,
+    notableActs: ["Japanese Breakfast", "Mitski", "Car Seat Headrest"],
   },
   {
     id: 5,
@@ -73,6 +106,7 @@ export const venues: Venue[] = [
     description: "Legendary Harlem landmark",
     capacity: "1,506",
     address: "253 W 125th St, New York, NY 10027",
+    neighborhood: "Harlem",
     upcomingShows: [
       { name: "Amateur Night", date: "Every Wednesday" },
       { name: "D'Angelo", date: "June 12, 2025" },
@@ -80,5 +114,310 @@ export const venues: Venue[] = [
     ],
     vibe: "Historic, Soulful, Cultural",
     imageUrl: "/images/apollotheater.avif",
+    coordinates: { lat: 40.8021, lng: -73.9452 },
+    website: "https://www.apollotheater.org",
+    phone: "+1 212-531-5300",
+    yearEstablished: 1928,
+    notableActs: ["Amateur Night", "D'Angelo", "Lauryn Hill"],
   },
+  {
+    id: 6,
+    name: "Elsewhere",
+    description: "Multi-room music venue and arts space in a converted warehouse featuring emerging artists and electronic music",
+    capacity: "700",
+    address: "599 Johnson Ave, Brooklyn, NY 11237",
+    neighborhood: "Bushwick",
+    upcomingShows: [
+      { name: "Placeholder Event", date: "June 5, 2025" },
+      { name: "Placeholder Event", date: "June 12, 2025" },
+      { name: "Placeholder Event", date: "June 19, 2025" },
+    ],
+    vibe: "Industrial, Underground, Experimental",
+    imageUrl: "/images/elsewhere.jpg",
+    coordinates: { lat: 40.7068, lng: -73.9232 },
+    website: "https://www.elsewherebrooklyn.com",
+    phone: "+1 929-337-6506",
+    yearEstablished: 2017,
+    notableActs: ["Four Tet", "Kaytranada", "Jamie xx"]
+  },
+  {
+    id: 7,
+    name: "Brooklyn Mirage",
+    description: "Massive open-air electronic music venue with palm trees, city views, and immersive production",
+    capacity: "6,000",
+    address: "140 Stewart Ave, Brooklyn, NY 11237",
+    neighborhood: "East Williamsburg",
+    upcomingShows: [
+      { name: "Placeholder Event", date: "June 8, 2025" },
+      { name: "Placeholder Event", date: "June 15, 2025" },
+      { name: "Placeholder Event", date: "June 22, 2025" },
+    ],
+    vibe: "Immersive, Festival, Electronic",
+    imageUrl: "/images/brooklyn-mirage.jpg",
+    coordinates: { lat: 40.7133, lng: -73.9275 },
+    website: "https://www.avant-gardner.com",
+    phone: "+1 347-987-3146",
+    yearEstablished: 2017,
+    notableActs: ["Black Coffee", "Eric Prydz", "Rufus Du Sol"]
+  },
+  {
+    id: 8,
+    name: "Avant Gardner Great Hall",
+    description: "Massive indoor venue part of the Avant Gardner complex, featuring state-of-the-art sound and lighting",
+    capacity: "3,000",
+    address: "140 Stewart Ave, Brooklyn, NY 11237",
+    neighborhood: "East Williamsburg",
+    upcomingShows: [
+      { name: "Placeholder Event", date: "June 9, 2025" },
+      { name: "Placeholder Event", date: "June 16, 2025" },
+      { name: "Placeholder Event", date: "June 23, 2025" },
+    ],
+    vibe: "Industrial, Warehouse, Electronic",
+    imageUrl: "/images/avant-gardner.jpg",
+    coordinates: { lat: 40.7133, lng: -73.9275 },
+    website: "https://www.avant-gardner.com",
+    phone: "+1 347-987-3146",
+    yearEstablished: 2017,
+    notableActs: ["Charlotte de Witte", "Amelie Lens", "Boris Brejcha"]
+  },
+  {
+    id: 9,
+    name: "House of Yes",
+    description: "Theatrical nightclub and creative space known for themed parties, aerial performances, and immersive experiences",
+    capacity: "400",
+    address: "2 Wyckoff Ave, Brooklyn, NY 11237",
+    neighborhood: "Bushwick",
+    upcomingShows: [
+      { name: "House of Love", date: "June 10, 2025" },
+      { name: "Dirty Thursday", date: "June 17, 2025" },
+      { name: "Surrealist Ball", date: "June 24, 2025" },
+    ],
+    vibe: "Theatrical, Immersive, Eclectic",
+    imageUrl: "/images/house-of-yes.jpg",
+    coordinates: { lat: 40.7068, lng: -73.9222 },
+    website: "https://houseofyes.org",
+    phone: "+1 646-838-4937",
+    yearEstablished: 2016,
+    notableActs: ["The Knocks", "Bedouin", "Lee Burridge"]
+  },
+  {
+    id: 10,
+    name: "SILO",
+    description: "Underground techno club with raw warehouse vibes and cutting-edge sound system",
+    capacity: "500",
+    address: "80 Scott Ave, Brooklyn, NY 11237",
+    neighborhood: "Bushwick",
+    upcomingShows: [
+      { name: "Placeholder Event", date: "June 11, 2025" },
+      { name: "Placeholder Event", date: "June 18, 2025" },
+      { name: "Placeholder Event", date: "June 25, 2025" },
+    ],
+    vibe: "Underground, Techno, Warehouse",
+    imageUrl: "/images/silo.jpg",
+    coordinates: { lat: 40.7082, lng: -73.9227 },
+    website: "https://www.silobk.com",
+    phone: "+1 718-386-3400",
+    yearEstablished: 2019,
+    notableActs: ["DVS1", "Dax J", "SNTS"]
+  },
+  {
+    id: 11,
+    name: "H0L0",
+    description: "Intimate experimental music venue showcasing underground electronic music and avant-garde performances",
+    capacity: "200",
+    address: "1090 Wyckoff Ave, Ridgewood, NY 11385",
+    neighborhood: "Ridgewood",
+    upcomingShows: [
+      { name: "Placeholder Event", date: "June 12, 2025" },
+      { name: "Placeholder Event", date: "June 19, 2025" },
+      { name: "Placeholder Event", date: "June 26, 2025" },
+    ],
+    vibe: "Experimental, Intimate, DIY",
+    imageUrl: "/images/h0l0.jpg",
+    coordinates: { lat: 40.7036, lng: -73.9066 },
+    website: "https://h0l0.nyc",
+    phone: "+1 718-417-1118",
+    yearEstablished: 2016,
+    notableActs: ["Umfang", "Galcher Lustwerk", "Via App"]
+  },
+  {
+    id: 12,
+    name: "Brooklyn Monarch",
+    description: "Multi-room venue with a mix of electronic music, live performances, and art installations",
+    capacity: "800",
+    address: "23 Meadow St, Brooklyn, NY 11206",
+    neighborhood: "East Williamsburg",
+    upcomingShows: [
+      { name: "Placeholder Event", date: "June 13, 2025" },
+      { name: "Placeholder Event", date: "June 20, 2025" },
+      { name: "Placeholder Event", date: "June 27, 2025" },
+    ],
+    vibe: "Eclectic, Underground, Artistic",
+    imageUrl: "/images/brooklyn-monarch.jpg",
+    coordinates: { lat: 40.7089, lng: -73.9394 },
+    website: "https://www.brooklynmonarch.com",
+    phone: "+1 347-916-0333",
+    yearEstablished: 2019,
+    notableActs: ["Maceo Plex", "Claptone", "Moodymann"]
+  },
+  {
+    id: 13,
+    name: "Brooklyn Army Terminal",
+    description: "Historic military supply base transformed into a massive event space for concerts and art installations",
+    capacity: "4,000",
+    address: "140 58th St, Brooklyn, NY 11220",
+    neighborhood: "Sunset Park",
+    upcomingShows: [
+      { name: "Placeholder Event", date: "June 14, 2025" },
+      { name: "Placeholder Event", date: "June 21, 2025" },
+      { name: "Placeholder Event", date: "June 28, 2025" },
+    ],
+    vibe: "Historic, Industrial, Expansive",
+    imageUrl: "/images/brooklyn-army-terminal.jpg",
+    coordinates: { lat: 40.6456, lng: -74.0242 },
+    website: "https://www.bklynarmyterminal.com",
+    phone: "+1 718-907-5900",
+    yearEstablished: 1918,
+    notableActs: ["Bonobo", "Disclosure", "Tycho"]
+  },
+  {
+    id: 14,
+    name: "Marquee",
+    description: "Upscale nightclub with state-of-the-art sound and lighting systems featuring top DJs",
+    capacity: "700",
+    address: "289 10th Ave, New York, NY 10001",
+    neighborhood: "Chelsea",
+    upcomingShows: [
+      { name: "Placeholder Event", date: "June 15, 2025" },
+      { name: "Placeholder Event", date: "June 22, 2025" },
+      { name: "Placeholder Event", date: "June 29, 2025" },
+    ],
+    vibe: "Upscale, Nightclub, Electronic",
+    imageUrl: "/images/marquee.webp",
+    coordinates: { lat: 40.7509, lng: -74.0048 },
+    website: "https://marqueeny.com",
+    phone: "+1 646-473-0202",
+    yearEstablished: 2013,
+    notableActs: ["Tiesto", "Steve Aoki", "Kaskade"]
+  },
+  {
+    id: 15,
+    name: "Nebula",
+    description: "Massive multi-level nightclub with futuristic design and immersive audiovisual experiences",
+    capacity: "2,200",
+    address: "135 W 41st St, New York, NY 10036",
+    neighborhood: "Midtown",
+    upcomingShows: [
+      { name: "Placeholder Event", date: "June 16, 2025" },
+      { name: "Placeholder Event", date: "June 23, 2025" },
+      { name: "Placeholder Event", date: "June 30, 2025" },
+    ],
+    vibe: "Futuristic, Immersive, Electronic",
+    imageUrl: "/images/nebula.jpg",
+    coordinates: { lat: 40.7551, lng: -73.9880 },
+    website: "https://nebulanyvenue.com",
+    phone: "+1 646-350-0385",
+    yearEstablished: 2021,
+    notableActs: ["Armin van Buuren", "Nora En Pure", "Purple Disco Machine"]
+  },
+  {
+    id: 16,
+    name: "Baby's All Right",
+    description: "Intimate venue with eclectic programming, featuring indie bands, electronic music, and themed parties",
+    capacity: "280",
+    address: "146 Broadway, Brooklyn, NY 11211",
+    neighborhood: "Williamsburg",
+    upcomingShows: [
+      { name: "Placeholder Event", date: "June 17, 2025" },
+      { name: "Placeholder Event", date: "June 24, 2025" },
+      { name: "Placeholder Event", date: "July 1, 2025" },
+    ],
+    vibe: "Intimate, Indie, Eclectic",
+    imageUrl: "/images/babys-all-right.jpg",
+    coordinates: { lat: 40.7104, lng: -73.9634 },
+    website: "https://babysallright.com",
+    phone: "+1 718-599-5800",
+    yearEstablished: 2013,
+    notableActs: ["Beach Fossils", "Crumb", "Porches"]
+  },
+  {
+    id: 17,
+    name: "Webster Hall",
+    description: "Historic multi-level venue with multiple rooms featuring diverse musical programming",
+    capacity: "1,500",
+    address: "125 E 11th St, New York, NY 10003",
+    neighborhood: "East Village",
+    upcomingShows: [
+      { name: "Placeholder Event", date: "June 18, 2025" },
+      { name: "Placeholder Event", date: "June 25, 2025" },
+      { name: "Placeholder Event", date: "July 2, 2025" },
+    ],
+    vibe: "Historic, Diverse, Energetic",
+    imageUrl: "/images/webster-hall.webp",
+    coordinates: { lat: 40.7312, lng: -73.9894 },
+    website: "https://www.websterhall.com",
+    phone: "+1 212-353-1600",
+    yearEstablished: 1886,
+    notableActs: ["Vampire Weekend", "Interpol", "LCD Soundsystem"]
+  },
+  {
+    id: 18,
+    name: "Terminal 5",
+    description: "Multi-level concert venue with industrial aesthetics and multiple bars",
+    capacity: "3,000",
+    address: "610 W 56th St, New York, NY 10019",
+    neighborhood: "Hell's Kitchen",
+    upcomingShows: [
+      { name: "Placeholder Event", date: "June 19, 2025" },
+      { name: "Placeholder Event", date: "June 26, 2025" },
+      { name: "Placeholder Event", date: "July 3, 2025" },
+    ],
+    vibe: "Industrial, Mainstream, Spacious",
+    imageUrl: "/images/terminal-5.jpg",
+    coordinates: { lat: 40.7685, lng: -73.9929 },
+    website: "https://www.terminal5nyc.com",
+    phone: "+1 212-582-6600",
+    yearEstablished: 2007,
+    notableActs: ["The 1975", "ODESZA", "Flume"]
+  },
+  {
+    id: 19,
+    name: "Basement",
+    description: "Underground techno club with minimalist design and world-class sound system",
+    capacity: "300",
+    address: "52 Meserole St, Brooklyn, NY 11206",
+    neighborhood: "East Williamsburg",
+    upcomingShows: [
+      { name: "Placeholder Event", date: "June 20, 2025" },
+      { name: "Placeholder Event", date: "June 27, 2025" },
+      { name: "Placeholder Event", date: "July 4, 2025" },
+    ],
+    vibe: "Underground, Techno, Minimalist",
+    imageUrl: "/images/basement.webp",
+    coordinates: { lat: 40.7089, lng: -73.9394 },
+    website: "https://basementny.net",
+    phone: "+1 917-995-1222",
+    yearEstablished: 2018,
+    notableActs: ["Ben Klock", "Marcel Dettmann", "Kobosil"]
+  },
+  {
+    id: 20,
+    name: "Public Records",
+    description: "Audiophile music venue, café, and bar with minimalist design and eclectic programming",
+    capacity: "250",
+    address: "233 Butler St, Brooklyn, NY 11217",
+    neighborhood: "Gowanus",
+    upcomingShows: [
+      { name: "Placeholder Event", date: "June 21, 2025" },
+      { name: "Placeholder Event", date: "June 28, 2025" },
+      { name: "Placeholder Event", date: "July 5, 2025" },
+    ],
+    vibe: "Audiophile, Minimalist, Eclectic",
+    imageUrl: "/images/public-records.jpg",
+    coordinates: { lat: 40.6794, lng: -73.9881 },
+    website: "https://publicrecords.nyc",
+    phone: "+1 718-415-1074",
+    yearEstablished: 2019,
+    notableActs: ["DJ Harvey", "Floating Points", "Gilles Peterson"]
+  }
 ] 

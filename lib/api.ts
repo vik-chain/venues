@@ -17,32 +17,69 @@ export type Venue = {
   imageUrl: string
   ticketmasterId?: string
   ticketmasterUrl?: string
+  neighborhood?: string
+  ticketmasterAvailable?: boolean
 }
 
 // Cache for enhanced venues to avoid repeated API calls
 let enhancedVenuesCache: Venue[] | null = null
 
-export async function getVenues(query?: string) {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 500))
+// Cache expiration time (24 hours in milliseconds)
+const CACHE_EXPIRATION = 24 * 60 * 60 * 1000;
+let cacheTimestamp: number | null = null;
+
+export async function getVenues(query?: string, filters?: {
+  neighborhood?: string,
+  vibe?: string,
+  capacity?: string
+}) {
+  // Check if cache is valid
+  const now = Date.now();
+  const isCacheValid = enhancedVenuesCache && cacheTimestamp && 
+                      (now - cacheTimestamp < CACHE_EXPIRATION);
   
-  // Get enhanced venues (using cache if available)
-  const enhancedVenues = enhancedVenuesCache || await enhanceAllVenuesWithTicketmaster()
-  
-  // Update cache
-  if (!enhancedVenuesCache) {
-    enhancedVenuesCache = enhancedVenues
+  // Get enhanced venues (using cache if available and valid)
+  let enhancedVenues;
+  if (isCacheValid) {
+    enhancedVenues = enhancedVenuesCache;
+  } else {
+    enhancedVenues = await enhanceAllVenuesWithTicketmaster();
+    // Update cache
+    enhancedVenuesCache = enhancedVenues;
+    cacheTimestamp = now;
   }
   
-  if (!query) return enhancedVenues
+  // Filter by query if provided
+  let filteredVenues = enhancedVenues;
   
-  const lowercaseQuery = query.toLowerCase()
-  return enhancedVenues.filter(venue => 
-    venue.name.toLowerCase().includes(lowercaseQuery) ||
-    venue.description.toLowerCase().includes(lowercaseQuery) ||
-    venue.vibe.toLowerCase().includes(lowercaseQuery) ||
-    venue.capacity.toLowerCase().includes(lowercaseQuery)
-  )
+  if (query) {
+    const lowercaseQuery = query.toLowerCase();
+    filteredVenues = filteredVenues.filter(venue => 
+      venue.name.toLowerCase().includes(lowercaseQuery) ||
+      venue.description.toLowerCase().includes(lowercaseQuery) ||
+      venue.vibe.toLowerCase().includes(lowercaseQuery) ||
+      venue.neighborhood?.toLowerCase().includes(lowercaseQuery)
+    );
+  }
+  
+  // Apply additional filters
+  if (filters) {
+    if (filters.neighborhood) {
+      filteredVenues = filteredVenues.filter(venue => 
+        venue.neighborhood?.toLowerCase().includes(filters.neighborhood!.toLowerCase())
+      );
+    }
+    
+    if (filters.vibe) {
+      filteredVenues = filteredVenues.filter(venue => 
+        venue.vibe.toLowerCase().includes(filters.vibe!.toLowerCase())
+      );
+    }
+    
+    // More filters as needed
+  }
+  
+  return filteredVenues;
 }
 
 export async function getVenue(id: string) {

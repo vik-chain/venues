@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
-import { getVenue } from "@/lib/api"
+import { venues as originalVenues } from "@/lib/venues-data"
+import { enhanceVenueWithTicketmaster } from "@/lib/ticketmaster-integration"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import VenueMap from "@/components/venue-map"
@@ -9,7 +10,15 @@ import Image from "next/image"
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   try {
     const id = (await params).id
-    const venue = await getVenue(id)
+    
+    // Just get the basic venue info without Ticketmaster enhancement
+    const venue = originalVenues.find(v => v.id === parseInt(id))
+    
+    if (!venue) {
+      return {
+        title: 'Venue Not Found'
+      }
+    }
     
     return {
       title: `${venue.name} - NYC Venues`,
@@ -25,7 +34,16 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function VenuePage({ params }: { params: Promise<{ id: string }> }) {
   try {
     const id = (await params).id
-    const venue = await getVenue(id)
+    
+    // Find the original venue
+    const originalVenue = originalVenues.find(v => v.id === parseInt(id))
+    
+    if (!originalVenue) {
+      throw new Error(`Venue with ID ${id} not found`)
+    }
+    
+    // Enhance with Ticketmaster data
+    const venue = await enhanceVenueWithTicketmaster(originalVenue)
     
     return (
       <main className="min-h-screen bg-gradient-to-b from-[#52414C] to-black text-[#FFE9CE] p-8">
