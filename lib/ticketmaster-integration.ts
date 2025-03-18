@@ -26,6 +26,22 @@ function formatDate(dateStr: string, timeStr?: string): string {
   return formattedDate;
 }
 
+// Format price range from Ticketmaster data
+function formatPriceRange(priceRanges?: any[]): string | undefined {
+  if (!priceRanges || priceRanges.length === 0) {
+    return undefined;
+  }
+  
+  const priceRange = priceRanges[0];
+  const currency = priceRange.currency === 'USD' ? '$' : priceRange.currency;
+  
+  if (priceRange.min === priceRange.max) {
+    return `${currency}${priceRange.min.toFixed(0)}`;
+  }
+  
+  return `${currency}${priceRange.min.toFixed(0)} - ${currency}${priceRange.max.toFixed(0)}`;
+}
+
 // Enhance a single venue with Ticketmaster data
 export async function enhanceVenueWithTicketmaster(venue: Venue): Promise<Venue> {
   try {
@@ -57,7 +73,9 @@ export async function enhanceVenueWithTicketmaster(venue: Venue): Promise<Venue>
       upcomingShows: events.length > 0 
         ? events.slice(0, 5).map((event: any) => ({
             name: event.name,
-            date: formatDate(event.dates?.start?.localDate, event.dates?.start?.localTime)
+            date: formatDate(event.dates?.start?.localDate, event.dates?.start?.localTime),
+            ticketUrl: event.url,
+            priceRange: formatPriceRange(event.priceRanges)
           }))
         : venue.upcomingShows
     };

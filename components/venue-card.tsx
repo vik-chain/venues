@@ -12,7 +12,7 @@ type Venue = {
   description: string
   capacity: string
   address: string
-  upcomingShows: Array<{ name: string; date: string }>
+  upcomingShows: Array<{ name: string; date: string; priceRange?: string; ticketUrl?: string }>
   vibe: string
   imageUrl: string
 }
@@ -161,10 +161,31 @@ export default function VenueCard({ venue, isCurrent }: VenueCardProps) {
                 Upcoming Shows
               </h3>
               <ul className="space-y-3">
-                {venue.upcomingShows.map((show, i) => (
-                  <li key={i} className="border-b border-[#52414C]/20 pb-3">
+                {venue.upcomingShows.map((show, index) => (
+                  <li key={index} className="border-b border-[#52414C]/20 pb-3">
                     <div className="font-medium text-base text-[#52414C]">{show.name}</div>
                     <div className="text-sm text-[#52414C]/70">{show.date}</div>
+                    
+                    {/* Add price and ticket link */}
+                    <div className="mt-1 flex justify-between items-center">
+                      {show.priceRange && (
+                        <span className="text-[#989FCE] text-xs">
+                          {show.priceRange}
+                        </span>
+                      )}
+                      
+                      {show.ticketUrl && (
+                        <a 
+                          href={show.ticketUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="bg-[#989FCE]/20 hover:bg-[#989FCE]/40 text-[#52414C] text-xs px-2 py-1 rounded-full transition-colors"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Buy Tickets
+                        </a>
+                      )}
+                    </div>
                   </li>
                 ))}
               </ul>

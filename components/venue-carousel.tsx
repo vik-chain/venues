@@ -3,9 +3,9 @@
 import { useState, useRef, useEffect } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import VenueCard from "./venue-card"
-import { venues } from "@/lib/venues-data"
+import type { Venue } from "@/lib/api"
 
-export default function VenueCarousel() {
+export default function VenueCarousel({ venues }: { venues: Venue[] }) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isAnimating, setIsAnimating] = useState(false)
   const [startX, setStartX] = useState(0)

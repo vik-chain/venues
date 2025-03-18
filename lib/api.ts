@@ -7,7 +7,12 @@ export type Venue = {
   description: string
   capacity: string
   address: string
-  upcomingShows: Array<{ name: string; date: string }>
+  upcomingShows: Array<{ 
+    name: string
+    date: string
+    ticketUrl?: string
+    priceRange?: string
+  }>
   vibe: string
   imageUrl: string
   ticketmasterId?: string
