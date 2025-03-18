@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { Search } from "lucide-react"
 import Link from "next/link"
 import { getVenues } from "@/lib/api"
@@ -9,7 +9,8 @@ import VenueCard from "@/components/venue-card"
 import { useSearchParams, useRouter } from "next/navigation"
 import type { Venue } from "@/lib/api.ts"
 
-export default function SearchPage() {
+// Create a separate component that uses useSearchParams
+function SearchContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const initialQuery = searchParams.get("q") || ""
@@ -118,5 +119,16 @@ export default function SearchPage() {
         </section>
       </div>
     </main>
+  )
+}
+
+// Main page component with Suspense
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gradient-to-b from-[#52414C] via-[#3A2E36] to-black text-[#FFE9CE] flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#989FCE]"></div>
+    </div>}>
+      <SearchContent />
+    </Suspense>
   )
 } 

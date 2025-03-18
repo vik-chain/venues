@@ -4,6 +4,6 @@ export const metadata = {
   description: 'Find the perfect venue for your next event in NYC',
 }
 
-export default function SearchLayout({ children }) {
+export default function SearchLayout({ children }: { children: React.ReactNode }) {
   return children
 } 

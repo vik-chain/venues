@@ -6,9 +6,10 @@ import VenueMap from "@/components/venue-map"
 import FavoriteButton from "@/components/favorite-button"
 import Image from "next/image"
 
-export async function generateMetadata({ params }: { params: { id: string } }) {
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   try {
-    const venue = await getVenue(params.id)
+    const id = (await params).id
+    const venue = await getVenue(id)
     
     return {
       title: `${venue.name} - NYC Venues`,
@@ -21,9 +22,10 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   }
 }
 
-export default async function VenuePage({ params }: { params: { id: string } }) {
+export default async function VenuePage({ params }: { params: Promise<{ id: string }> }) {
   try {
-    const venue = await getVenue(params.id)
+    const id = (await params).id
+    const venue = await getVenue(id)
     
     return (
       <main className="min-h-screen bg-gradient-to-b from-[#52414C] to-black text-[#FFE9CE] p-8">
