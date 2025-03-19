@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
-import { getVenue } from "@/lib/api"
+import { venues as originalVenues } from "@/lib/venues-data"
+import { enhanceVenueWithTicketmaster } from "@/lib/ticketmaster-integration"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import VenueMap from "@/components/venue-map"
@@ -9,7 +10,15 @@ import Image from "next/image"
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   try {
     const id = (await params).id
-    const venue = await getVenue(id)
+    
+    // Just get the basic venue info without Ticketmaster enhancement
+    const venue = originalVenues.find(v => v.id === parseInt(id))
+    
+    if (!venue) {
+      return {
+        title: 'Venue Not Found'
+      }
+    }
     
     return {
       title: `${venue.name} - NYC Venues`,
@@ -25,7 +34,16 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function VenuePage({ params }: { params: Promise<{ id: string }> }) {
   try {
     const id = (await params).id
-    const venue = await getVenue(id)
+    
+    // Find the original venue
+    const originalVenue = originalVenues.find(v => v.id === parseInt(id))
+    
+    if (!originalVenue) {
+      throw new Error(`Venue with ID ${id} not found`)
+    }
+    
+    // Enhance with Ticketmaster data
+    const venue = await enhanceVenueWithTicketmaster(originalVenue)
     
     return (
       <main className="min-h-screen bg-gradient-to-b from-[#52414C] to-black text-[#FFE9CE] p-8">
@@ -64,8 +82,27 @@ export default async function VenuePage({ params }: { params: Promise<{ id: stri
               <ul className="space-y-4">
                 {venue.upcomingShows.map((show, index) => (
                   <li key={index} className="bg-[#52414C]/20 border border-[#989FCE]/20 p-4 rounded-lg">
-                    <h3 className="font-medium text-[#FFE9CE]">{show.name}</h3>
+                    <h3 className="font-medium text-base text-[#FFE9CE]">{show.name}</h3>
                     <p className="text-[#FFE9CE]/70 font-light">{show.date}</p>
+                    
+                    <div className="mt-2 flex justify-between items-center">
+                      {show.priceRange && (
+                        <span className="text-[#989FCE] text-sm">
+                          {show.priceRange}
+                        </span>
+                      )}
+                      
+                      {show.ticketUrl && (
+                        <a 
+                          href={show.ticketUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="bg-[#989FCE]/20 hover:bg-[#989FCE]/40 text-[#FFE9CE] text-sm px-3 py-1 rounded-full transition-colors"
+                        >
+                          Buy Tickets
+                        </a>
+                      )}
+                    </div>
                   </li>
                 ))}
               </ul>
