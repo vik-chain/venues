@@ -1,20 +1,25 @@
 import VenueCarousel from "@/components/venue-carousel"
 import { Search } from "lucide-react"
 import Link from "next/link"
-import { getVenues } from '@/lib/api'
+import { venues as allVenues } from '@/lib/venues-data'
+import { enhanceVenueWithTicketmaster } from '@/lib/ticketmaster-integration'
+import type { VenueData } from '@/lib/venues-data'
+import type { Venue } from '@/lib/api'
 
-// Helper function to get 5 random venues
-function getRandomVenues(venues: any[], count: number = 5) {
+// Helper function to get random venues with proper typing
+function getRandomVenues(venues: VenueData[], count: number = 5): VenueData[] {
   const shuffled = [...venues].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, count);
 }
 
 export default async function Home() {
-  // Get all venues with Ticketmaster data
-  const allVenues = await getVenues();
+  // Select 5 random venues from the original data
+  const randomVenues = getRandomVenues(allVenues, 5);
   
-  // Select 5 random venues for the carousel
-  const carouselVenues = getRandomVenues(allVenues, 5);
+  // Enhance only these 5 venues with Ticketmaster data
+  const enhancedVenues = await Promise.all(
+    randomVenues.map(venue => enhanceVenueWithTicketmaster(venue as unknown as Venue))
+  );
   
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#52414C] via-[#3A2E36] to-black text-[#FFE9CE] overflow-hidden">
@@ -36,7 +41,7 @@ export default async function Home() {
         </header>
         
         <section className="h-[650px] md:h-[750px] lg:h-[800px] mb-12">
-          <VenueCarousel venues={carouselVenues} />
+          <VenueCarousel venues={enhancedVenues} />
         </section>
         
         <footer className="text-center text-[#FFE9CE]/60 py-8 font-light tracking-wide">

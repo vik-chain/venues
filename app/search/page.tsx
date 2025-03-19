@@ -31,10 +31,11 @@ function SearchContent() {
     setIsLoading(true)
     try {
       const results = await getVenues(query)
-      setVenues(results)
+      setVenues(results || [])
       setSubmitted(true)
     } catch (error) {
       console.error("Error searching venues:", error)
+      setVenues([])
     } finally {
       setIsLoading(false)
     }

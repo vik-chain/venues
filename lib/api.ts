@@ -1,5 +1,6 @@
 import { venues as originalVenues } from './venues-data'
 import { enhanceVenueWithTicketmaster, enhanceAllVenuesWithTicketmaster } from './ticketmaster-integration'
+import type { VenueData } from './venues-data'
 
 export type Venue = {
   id: number
@@ -28,29 +29,17 @@ let enhancedVenuesCache: Venue[] | null = null
 const CACHE_EXPIRATION = 24 * 60 * 60 * 1000;
 let cacheTimestamp: number | null = null;
 
+// We'll keep a smaller cache for individual venues
+const venueCache: Record<number, Venue> = {};
+const venueCacheTimestamp: Record<number, number> = {};
+
 export async function getVenues(query?: string, filters?: {
   neighborhood?: string,
   vibe?: string,
   capacity?: string
 }) {
-  // Check if cache is valid
-  const now = Date.now();
-  const isCacheValid = enhancedVenuesCache && cacheTimestamp && 
-                      (now - cacheTimestamp < CACHE_EXPIRATION);
-  
-  // Get enhanced venues (using cache if available and valid)
-  let enhancedVenues;
-  if (isCacheValid) {
-    enhancedVenues = enhancedVenuesCache;
-  } else {
-    enhancedVenues = await enhanceAllVenuesWithTicketmaster();
-    // Update cache
-    enhancedVenuesCache = enhancedVenues;
-    cacheTimestamp = now;
-  }
-  
-  // Filter by query if provided
-  let filteredVenues = enhancedVenues;
+  // First filter the original venues based on query and filters
+  let filteredVenues: VenueData[] = [...originalVenues];
   
   if (query) {
     const lowercaseQuery = query.toLowerCase();
@@ -62,7 +51,6 @@ export async function getVenues(query?: string, filters?: {
     );
   }
   
-  // Apply additional filters
   if (filters) {
     if (filters.neighborhood) {
       filteredVenues = filteredVenues.filter(venue => 
@@ -79,20 +67,37 @@ export async function getVenues(query?: string, filters?: {
     // More filters as needed
   }
   
+  // For search results, we don't need to enhance with Ticketmaster data
+  // We'll only enhance when viewing details
   return filteredVenues;
 }
 
 export async function getVenue(id: string) {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 300))
+  const venueId = parseInt(id);
+  const now = Date.now();
+  
+  // Check if we have a valid cached version
+  if (
+    venueCache[venueId] && 
+    venueCacheTimestamp[venueId] && 
+    (now - venueCacheTimestamp[venueId] < CACHE_EXPIRATION)
+  ) {
+    return venueCache[venueId];
+  }
   
   // Find the original venue
-  const venue = originalVenues.find(v => v.id === parseInt(id))
+  const venue = originalVenues.find(v => v.id === venueId);
   
   if (!venue) {
-    throw new Error(`Venue with ID ${id} not found`)
+    throw new Error(`Venue with ID ${id} not found`);
   }
   
   // Enhance with Ticketmaster data
-  return enhanceVenueWithTicketmaster(venue)
+  const enhancedVenue = await enhanceVenueWithTicketmaster(venue);
+  
+  // Cache the result
+  venueCache[venueId] = enhancedVenue;
+  venueCacheTimestamp[venueId] = now;
+  
+  return enhancedVenue;
 } 
