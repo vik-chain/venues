@@ -1,20 +1,19 @@
-import VenueCarousel from "@/components/venue-carousel"
-import { Search } from "lucide-react"
 import Link from "next/link"
-import { venues as allVenues } from '@/lib/venues-data'
-import { enhanceVenueWithTicketmaster } from '@/lib/ticketmaster-integration'
-import type { VenueData } from '@/lib/venues-data'
-import type { Venue } from '@/lib/api'
+import { Search } from "lucide-react"
+import VenueCarousel from "@/components/venue-carousel"
+import SmokeBackground from "@/components/smoke-background"
+import { enhanceVenueWithTicketmaster } from "@/lib/ticketmaster-integration"
+import { venues } from "@/lib/venues-data"
+import type { Venue } from "@/lib/api"
 
-// Helper function to get random venues with proper typing
-function getRandomVenues(venues: VenueData[], count: number = 5): VenueData[] {
-  const shuffled = [...venues].sort(() => 0.5 - Math.random());
+function getRandomVenues(venuesList: any[], count: number = 5): any[] {
+  const shuffled = [...venuesList].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, count);
 }
 
 export default async function Home() {
   // Select 5 random venues from the original data
-  const randomVenues = getRandomVenues(allVenues, 5);
+  const randomVenues = getRandomVenues(venues, 5);
   
   // Enhance only these 5 venues with Ticketmaster data
   const enhancedVenues = await Promise.all(
@@ -23,9 +22,12 @@ export default async function Home() {
   
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#52414C] via-[#3A2E36] to-black text-[#FFE9CE] overflow-hidden">
-      <div className="container mx-auto px-4 py-8">
+      {/* Smoke effect background */}
+      <SmokeBackground />
+      
+      <div className="container mx-auto px-4 py-8 relative z-10">
         <header className="mb-8 flex flex-col md:flex-row justify-between items-center">
-          <h1 className="text-4xl md:text-5xl font-light tracking-tight mb-6 md:mb-0 text-[#FFE9CE]">
+          <h1 className="text-4xl md:text-6xl font-light tracking-tight mb-6 md:mb-0 text-[#FFE9CE]">
             <span className="font-bold">NYC</span> Venues
           </h1>
           
@@ -40,7 +42,11 @@ export default async function Home() {
           </div>
         </header>
         
-        <section className="h-[650px] md:h-[750px] lg:h-[800px] mb-12">
+        <section className="h-[650px] md:h-[750px] lg:h-[800px] mb-12 relative">
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center mb-12 text-[#FFE9CE]/80 font-light">
+            <p className="text-xl">Discover the perfect venue for your next event</p>
+            <p className="text-sm mt-2">Move your mouse over the cards to interact</p>
+          </div>
           <VenueCarousel venues={enhancedVenues} />
         </section>
         

@@ -2,6 +2,7 @@ import { venues as originalVenues } from './venues-data'
 import { enhanceVenueWithTicketmaster, enhanceAllVenuesWithTicketmaster } from './ticketmaster-integration'
 import type { VenueData } from './venues-data'
 
+// Define the Venue type only once
 export type Venue = {
   id: number
   name: string
@@ -100,4 +101,26 @@ export async function getVenue(id: string) {
   venueCacheTimestamp[venueId] = now;
   
   return enhancedVenue;
-} 
+}
+
+// Helper function to get random venues
+export function getRandomVenues(venues: any[], count: number = 5): any[] {
+  const shuffled = [...venues].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
+}
+
+// Re-export the enhanceVenueWithTicketmaster function from ticketmaster-integration
+export { enhanceVenueWithTicketmaster } from './ticketmaster-integration';
+
+// Remove the duplicate Venue type definition
+// export type Venue = {
+//   id: number;
+//   name: string;
+//   description: string;
+//   capacity: string;
+//   address: string;
+//   upcomingShows: Array<{ name: string; date: string; priceRange?: string; ticketUrl?: string }>;
+//   vibe: string;
+//   imageUrl: string;
+//   // Add any other properties that might be in your Venue type
+// }; 
