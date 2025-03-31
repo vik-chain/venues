@@ -421,3 +421,5 @@ export const venues: VenueData[] = [
     notableActs: ["DJ Harvey", "Floating Points", "Gilles Peterson"]
   }
 ] 
+
+export const allVenues = venues; 
