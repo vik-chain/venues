@@ -178,7 +178,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         <div className="mt-6 text-center text-[#FFE9CE]/60">
           {mode === 'signin' ? (
             <p>
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <button 
                 onClick={() => setMode('signup')}
                 className="text-[#989FCE] hover:underline"
