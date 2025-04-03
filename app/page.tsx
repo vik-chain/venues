@@ -2,6 +2,7 @@ import Link from "next/link"
 import { Search } from "lucide-react"
 import VenueCarousel from "@/components/venue-carousel"
 import SmokeBackground from "@/components/smoke-background"
+import AuthButton from "@/components/auth-button"
 import { enhanceVenueWithTicketmaster } from "@/lib/ticketmaster-integration"
 import { venues } from "@/lib/venues-data"
 import type { Venue } from "@/lib/api"
@@ -31,7 +32,7 @@ export default async function Home() {
             <span className="font-bold">NYC</span> Venues
           </h1>
           
-          <div className="w-full md:w-auto">
+          <div className="w-full md:w-auto flex flex-col md:flex-row gap-4 items-center">
             <Link 
               href="/search" 
               className="flex items-center gap-2 bg-[#52414C]/40 hover:bg-[#52414C]/60 border border-[#989FCE]/30 rounded-full px-6 py-3 text-[#FFE9CE]/90 transition-colors w-full md:w-auto"
@@ -39,6 +40,8 @@ export default async function Home() {
               <Search className="h-5 w-5 text-[#989FCE]" />
               <span className="font-light tracking-wide">Search venues...</span>
             </Link>
+            
+            <AuthButton />
           </div>
         </header>
         
